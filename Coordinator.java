@@ -34,14 +34,15 @@ public class Coordinator {
 		radio.setShortAddr(0x000A);
 
 		/* Launch fake topology discovery. */
-		neighbours = new int[0];
+		neighbours = new int[1];
 		discovery();
 	
 		/* Prepare frame (beacon frame) with source addressing. */
-		frame = new byte[7];
+		frame = new byte[11];
 		frame[0] = Radio.FCF_BEACON; // Frame control flags
 		frame[1] = Radio.FCA_SRC_SADDR; // Frame control address flags
 		Util.set16le(frame, 3, 0x22); //DST pan, matching this node's one
+		Util.set16le(frame, 7, 0x22); //SRC pan, matching this node's one
 		        
 		/* Start listening to radio channel 0. */
 		radio.setRxHandler(new DevCallback(null){
@@ -112,10 +113,11 @@ public class Coordinator {
 		
 		/* Final frame tunings. */
 		Util.set16le(frame, 5, 0x000B); //destination address
+		Util.set16le(frame, 9, radio.getShortAddr()); //source address
 		frame[2] = (byte)0xDA; //data frame
 		
 		/* Fire. */
-		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, 7, 0);
+		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, 11, 0);
 		
 	}
 

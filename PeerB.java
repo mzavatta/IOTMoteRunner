@@ -6,6 +6,9 @@
  */
 
 
+// THE PROBLEM IS THAT IN THIS WAY IT WILL NEVER SEE IF A PACKET IS ACTUALLY FOR HIM OR NOT
+// IT CAN ONLY ACT AS A BRIDGE
+
 package IOT.homework;
 import com.ibm.saguaro.system.*;
 import com.ibm.saguaro.logger.*;
@@ -15,7 +18,6 @@ public class PeerB {
 	private static int[] neighbours;
 	private static Timer  tsend;
 	private static byte[] frame;
-	private static long   xmitDelay;
 
 	static Radio radio = new Radio();
 
@@ -37,14 +39,15 @@ public class PeerB {
 
 
 		/* Launch fake topology discovery. */
-		neighbours = new int[1];
+		neighbours = new int[2];
 		discovery();
 
 		/* Prepare frame (beacon frame) with source addressing. */
-		frame = new byte[7];
+		frame = new byte[11];
 		frame[0] = Radio.FCF_BEACON; // Frame control flags
-		frame[1] = Radio.FCA_SRC_SADDR; // Frame control address flags
+		frame[1] = (Radio.FCA_SRC_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
 		Util.set16le(frame, 3, 0x22); //DST pan, matching this node's one
+		Util.set16le(frame, 7, 0x22); //SRC pan, matching this node's one
 
 		        
 		/* Start listening to radio channel 0. */
@@ -58,19 +61,6 @@ public class PeerB {
 
 		Logger.appendString(csr.s2b("Reception started"));
 		Logger.flush(Mote.INFO);
-
-	
-		// Setup a periodic timer callback for transmissions
-		tsend = new Timer();
-		tsend.setCallback(new TimerEvent(null){
-			public void invoke(byte param, long time){
-			    PeerB.periodicSend(param, time);
-			}
-		    });
-		// Convert the periodic delay from ms to platform ticks
-		xmitDelay = Time.toTickSpan(Time.MILLISECS, 2500);
-		// Start the timer
-		tsend.setAlarmBySpan(xmitDelay);
      
 
 	}
@@ -79,14 +69,13 @@ public class PeerB {
 	/* Reception handler. */
 	private static int onRxPDU (int flags, byte[] data, int len, int info, long time) {
 
-		if (data == null) { // marks end of reception period
-		    // re-enable reception for a very long time
+		/* data null means expiry of reception period, thus re-enable reception for a very long time. */
+		if (data == null) {
 		    radio.startRx(Device.ASAP, 0, Time.currentTicks()+0x7FFFFFFF);
 		    return 0; 
 		}
 
 		int i = 0;
-
 		Logger.appendString(csr.s2b("PeerB: packet received: "));
 		Logger.appendString(csr.s2b("length:"));
 		Logger.appendHexInt((int)len);
@@ -98,26 +87,35 @@ public class PeerB {
 		}
 		Logger.flush(Mote.INFO);
 
+		
+		/* Chech whether it is intended for a neighbourg. */
+		// (I've no way to chech that!)
 
+		/* If a data packet, forward to other neighbourg. */
+		/* If an ACK packet, forward the other neighbourg. */
+		/* Therefore, just forward, swap source as destination. */
+		if (Util.get16le(data, 9)== 0x000A) Util.set16le(data, 5, 0x000C);
+		if (Util.get16le(data, 9)== 0x000C) Util.set16le(data, 5, 0x000A);
+		PeerB.packetSend(data, len);
+		
 		return 0;
 	}
 	
-	// Called on a timer alarm
-	public static void packetSend(byte param, long time) {
+	/* Send packet method. */
+	public static void packetSend(byte[] data, int len) {
+
 		Logger.appendString(csr.s2b("Sending a packet..."));
 		Logger.flush(Mote.INFO);
 
-		Util.set16le(frame, 5, 0x000B); //seems like destination address
-		// set sequence number
-		frame[2] = (byte)ledColor;
-		// send the message
-		//public void transmit(uint mode, byte[] pdu, uint beg, uint len, long time)
-		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, 7, 0);
-		// Setup a new alarm
-		tsend.setAlarmBySpan(xmitDelay);
+		/* Pad the source address. */
+		Util.set16le(data, 9, radio.getShortAddr());
+
+		/* Fire. */
+		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, len, 0);
+
 	}
 
-	// Fake topology discovery
+	/* Fake topology discovery. */
 	private static void discovery() {
 		neighbours[0]=0x000A;
 		neighbours[1]=0x000C;
