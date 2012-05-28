@@ -34,13 +34,13 @@ public class Coordinator {
 		radio.setShortAddr(0x000A);
 
 		/* Launch fake topology discovery. */
-		neighbours = new int[1];
-		discovery();
+		//neighbours = new int[1];
+		//discovery();
 	
 		/* Prepare frame (beacon frame) with source addressing. */
 		frame = new byte[11];
-		frame[0] = Radio.FCF_BEACON; // Frame control flags
-		frame[1] = Radio.FCA_SRC_SADDR; // Frame control address flags
+		frame[0] = Radio.FCF_DATA; // Frame control flags
+		frame[1] = (Radio.FCA_DST_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
 		Util.set16le(frame, 3, 0x22); //DST pan, matching this node's one
 		Util.set16le(frame, 7, 0x22); //SRC pan, matching this node's one
 		        
@@ -95,7 +95,7 @@ public class Coordinator {
 		Logger.flush(Mote.INFO);
 
 		/* Check if ACK. */
-		if (data[2]==0xAC)
+		if ((byte)data[2]==(byte)0xAC)
 			Logger.appendString(csr.s2b("Coordinator: ACK received"));
 		else
 			Logger.appendString(csr.s2b("Coordinator: frame received but it is no ACK!"));
@@ -108,7 +108,7 @@ public class Coordinator {
 	/* Called on timer event, send packet. */
 	public static void packetSend(byte param, long time) {
 
-		Logger.appendString(csr.s2b("Sending a packet..."));
+		Logger.appendString(csr.s2b("Coordinator: Sending a packet..."));
 		Logger.flush(Mote.INFO);
 		
 		/* Final frame tunings. */

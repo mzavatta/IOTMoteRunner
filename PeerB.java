@@ -39,13 +39,13 @@ public class PeerB {
 
 
 		/* Launch fake topology discovery. */
-		neighbours = new int[2];
-		discovery();
+		//neighbours = new int[2];
+		//discovery();
 
 		/* Prepare frame (beacon frame) with source addressing. */
 		frame = new byte[11];
-		frame[0] = Radio.FCF_BEACON; // Frame control flags
-		frame[1] = (Radio.FCA_SRC_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
+		frame[0] = Radio.FCF_DATA; // Frame control flags
+		frame[1] = (Radio.FCA_DST_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
 		Util.set16le(frame, 3, 0x22); //DST pan, matching this node's one
 		Util.set16le(frame, 7, 0x22); //SRC pan, matching this node's one
 
@@ -59,7 +59,7 @@ public class PeerB {
 		radio.startRx(Device.ASAP, 0, Time.currentTicks()+0x7FFFFFFF);
 
 
-		Logger.appendString(csr.s2b("Reception started"));
+		Logger.appendString(csr.s2b("Peer B: Reception started"));
 		Logger.flush(Mote.INFO);
      
 
@@ -104,14 +104,14 @@ public class PeerB {
 	/* Send packet method. */
 	public static void packetSend(byte[] data, int len) {
 
-		Logger.appendString(csr.s2b("Sending a packet..."));
+		Logger.appendString(csr.s2b("Peer B: Sending a packet..."));
 		Logger.flush(Mote.INFO);
 
 		/* Pad the source address. */
 		Util.set16le(data, 9, radio.getShortAddr());
 
 		/* Fire. */
-		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, len, 0);
+		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, data, 0, len, 0);
 
 	}
 

@@ -1,0 +1,71 @@
+tinyos@tinyos-VirtualBox:~/IOTHomeworks/IOTMoteRunner$ mrsh
+> mote-create
+02-00-00-00-00-6F-F8-00
+> mote-create
+02-00-00-00-00-6F-F8-01
+> mote-create
+02-00-00-00-00-6F-F8-02
+> moma-load logger
+Loading sba '/opt/moterunner/gac/logger-8.0.15699.sba'...
+logger-8.0.15699(a:02)
+logger-8.0.15699(a:02)
+logger-8.0.15699(a:02)
+> a1 moma-load peerb-1.0
+Loading sba './peerb-1.0.sba'...
+ log-ev           (hal_log) PeerB: started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01  
+ 1:00:21.455'275                           
+ log-ev           (hal_log) Peer B: Reception started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01             
+ 1:00:21.458'704                                      
+peerb-1.0.63496(a:03)
+2 unseen log entries. 
+> a2 moma-load peerc-1.0
+Loading sba './peerc-1.0.sba'...
+ log-ev           (hal_log) Peer C: started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-02   
+ 1:00:30.989'864                            
+ log-ev           (hal_log) Peer C: Reception started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-02             
+ 1:00:30.993'294                                      
+peerc-1.0.63688(a:03)
+4 unseen log entries. 
+> a0 moma-load coordinator-1.0
+Loading sba './coordinator-1.0.sba'...
+ log-ev           (hal_log) Coordinator: started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-00        
+ 1:00:38.400'018                                 
+ log-ev           (hal_log) Reception started 
+ MAPP:INFO        02-00-00-00-00-6F-F8-00     
+ 1:00:38.403'444                              
+coordinator-1.0.63843(a:03)
+6 unseen log entries. 
+>  log-ev           (hal_log) Coordinator: Sending a packet... 
+ MAPP:INFO        02-00-00-00-00-6F-F8-00                    
+ 1:00:44.406'633                                             
+ log-ev           (hal_log) PeerB: packet received: length:000B data:01.88.DA.22.00.0B.00.22.00.0A.00. 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01                                                              
+ 1:00:44.423'987                                                                                       
+ log-ev           (hal_log) Peer B: Sending a packet... 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01               
+ 1:00:44.425'176                                        
+ log-ev           (hal_log) Peer C: packet received: length:000B data:01.88.DA.22.00.0C.00.22.00.0B.00. 
+ MAPP:INFO        02-00-00-00-00-6F-F8-02                                                               
+ 1:00:44.441'326                                                                                        
+ log-ev           (hal_log) Peer C: sending a packet:length:000B data:01.88.AC.22.00.0B.00.22.00.0C.00. 
+ MAPP:INFO        02-00-00-00-00-6F-F8-02                                                               
+ 1:00:44.456'237                                                                                        
+ log-ev           (hal_log) PeerB: packet received: length:000B data:01.88.AC.22.00.0B.00.22.00.0C.00. 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01                                                              
+ 1:00:44.472'365                                                                                       
+ log-ev           (hal_log) Peer B: Sending a packet... 
+ MAPP:INFO        02-00-00-00-00-6F-F8-01               
+ 1:00:44.473'553                                        
+ log-ev           (hal_log) Coordinator: packet received: length:000B data:01.88.AC.22.00.0A.00.22.00.0B.00. 
+ MAPP:INFO        02-00-00-00-00-6F-F8-00                                                                    
+ 1:00:44.491'626                                                                                             
+ log-ev           (hal_log) Coordinator: ACK received 
+ MAPP:INFO        02-00-00-00-00-6F-F8-00             
+ 1:00:44.492'625                                      
+quit
+

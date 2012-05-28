@@ -35,14 +35,14 @@ public class PeerC {
 
 	
 		/* Launch fake topology discovery. */
-		neighbours = new int[1];
-		discovery();
+		//neighbours = new int[1];
+		//discovery();
 
 	
 		/* Prepare frame (beacon frame) with source addressing. */
 		frame = new byte[11];
-		frame[0] = Radio.FCF_BEACON; // Frame control flags
-		frame[1] = (Radio.FCA_SRC_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
+		frame[0] = Radio.FCF_DATA; // Frame control flags
+		frame[1] = (Radio.FCA_DST_SADDR|Radio.FCA_SRC_SADDR); // Frame control address flags
 		Util.set16le(frame, 3, 0x22); //DST pan, matching this node's one
 		Util.set16le(frame, 7, 0x22); //SRC pan, matching this node's one
 
@@ -56,7 +56,7 @@ public class PeerC {
 		radio.startRx(Device.ASAP, 0, Time.currentTicks()+0x7FFFFFFF);
 
 
-		Logger.appendString(csr.s2b("Reception started"));
+		Logger.appendString(csr.s2b("Peer C: Reception started"));
 		Logger.flush(Mote.INFO);
 
 	
@@ -72,7 +72,7 @@ public class PeerC {
 		}
 
 		int i = 0;
-		Logger.appendString(csr.s2b("PeerC: packet received: "));
+		Logger.appendString(csr.s2b("Peer C: packet received: "));
 		Logger.appendString(csr.s2b("length:"));
 		Logger.appendHexInt((int)len);
 		Logger.appendString(csr.s2b(" data:"));
@@ -85,7 +85,7 @@ public class PeerC {
 
 
 		/* If data packet, then change into acknowledge. */
-		data[3] = (byte)0xAC;
+		data[2] = (byte)0xAC;
 
 		PeerC.packetSend(data, len);
 
@@ -94,15 +94,27 @@ public class PeerC {
 	
 	/* Send packet method. */
 	public static void packetSend(byte[] data, int len) {
-		Logger.appendString(csr.s2b("Sending a packet..."));
-		Logger.flush(Mote.INFO);
+		int i = 0;
+		Logger.appendString(csr.s2b("Peer C: sending a packet:"));
+		
+
 
 		/* Swap source with destination. */
 		Util.set16le(data, 5, Util.get16le(data, 9));
 		Util.set16le(data, 9, radio.getShortAddr());
 
+		Logger.appendString(csr.s2b("length:"));
+		Logger.appendHexInt((int)len);
+		Logger.appendString(csr.s2b(" data:"));
+		while (i<len) {
+			Logger.appendHexByte((byte)data[i]);
+			Logger.appendString(csr.s2b("."));
+			i++;
+		}
+		Logger.flush(Mote.INFO);
+
 		/* Fire. */
-		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, frame, 0, len, 0);
+		radio.transmit(Device.ASAP|Radio.TXMODE_CCA, data, 0, len, 0);
     	}
 
 	/* Fake topology discovery. */
