@@ -24,9 +24,10 @@ public class Coordinator {
 	 */
 
 	/*
-	 * Hypothesis of a star topology.
-	 * Therefore a Peer cannot have children.
-	 * For every tx frame, talk with the Coordinator.
+	 * Hypothesis of a star topology. Therefore a Peer cannot have children. For every tx frame from a children, talk with the Coordinator.
+	 * The list of children of the Coordinator is hard-coded at line 150. It is coded that children are two,
+	 * with addresses 0x000A and 0X000C. The only variation needed to extend the network with more children is to
+	 * add their addresses at line 149.
 	 * The DSTADDR, SRCADDR are specific for each frame between two peers, while finaldstaddr and initialsrcaddr
 	 * are needed to indicate the ends of the whole route. As a frame travels along a path, DSTADDR and SRCADDR change,
 	 * while finaldstaddr and initialsrcaddr do not change.
